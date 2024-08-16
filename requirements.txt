@@ -1,0 +1,4 @@
+pandas==2.0.3
+matplotlib==3.7.2
+cartopy==0.21.1
+mplleaflet==0.0.5
