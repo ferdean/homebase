@@ -40,13 +40,14 @@ def main(file_path: Path = _EXAMPLE_DATA_PATH):
     # Generate and plot country values
     countries_data = db.get_countries_days_lived()
     plot_country_values(
-        countries_data["country"], countries_data["total_days_lived"], interactive=True
+        countries_data["country"],
+        countries_data["total_days_lived"],
     )
 
     # Plot top 10 cities with most days lived over time, excluding the first most important one
     df = db._get_dataframe()  # Using the internal method to get the raw data
     plot_top_cities_over_time(
-        df, top_n=10, cumulative=False, exclude_top=1, log_scale=True
+        df, top_n=10, cumulative=True, exclude_top=1, log_scale=False
     )
 
     # Plot the distribution of days lived across different cities
