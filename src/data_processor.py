@@ -2,7 +2,7 @@
 
 This module provides functionality to load, process, and analyze data stored
 in CSV files containing location-based information such as cities, countries,
-and the duration of stays. 
+and the duration of stays.
 
 It supports generating basic statistics and summaries by city, country, or year.
 """
@@ -106,46 +106,46 @@ class ExtendedDatabase(_Database):
         city_days.columns = ["city", "total_days_lived"]
         return city_days
 
-    def _filter_by_location(
-        self, city: str, exact_match: bool = True, key: str | None = None
+    def _filter_by(
+        self,
+        column_name: str,
+        value: str,
+        exact_match: bool = True,
+        key: str | None = None,
     ) -> pd.DataFrame:
-        """Filter the dataframe by city."""
+        """General method to filter dataframe by any column."""
         df = self._get_dataframe(key)
         if exact_match:
-            return df[df["city"].str.lower() == city.lower()]
+            return df[df[column_name].str.lower() == value.lower()]
         else:
             closest_matches = difflib.get_close_matches(
-                city, df["city"].unique(), n=1, cutoff=0.8
+                value, df[column_name].unique(), n=1, cutoff=0.8
             )
             if closest_matches:
-                logger.info(f"Using closest match for city: {closest_matches[0]}")
-                return df[df["city"].str.lower() == closest_matches[0].lower()]
+                logger.info(
+                    f"Using closest match for {column_name}: {closest_matches[0]}"
+                )
+                return df[df[column_name].str.lower() == closest_matches[0].lower()]
             else:
-                logger.warning(f"No close match found for city: {city}.")
-                return pd.DataFrame()
-
-    def _filter_by_country(
-        self, country: str, exact_match: bool = True, key: str | None = None
-    ) -> pd.DataFrame:
-        """Filter the dataframe by country."""
-        df = self._get_dataframe(key)
-        if exact_match:
-            return df[df["country"].str.lower() == country.lower()]
-        else:
-            closest_matches = difflib.get_close_matches(
-                country, df["country"].unique(), n=1, cutoff=0.8
-            )
-            if closest_matches:
-                logger.info(f"Using closest match for country: {closest_matches[0]}")
-                return df[df["country"].str.lower() == closest_matches[0].lower()]
-            else:
-                logger.warning(f"No close match found for country: {country}.")
+                logger.warning(f"No close match found for {column_name}: {value}.")
                 return pd.DataFrame()
 
     def _filter_by_year(self, year: int, key: str | None = None) -> pd.DataFrame:
         """Filter the dataframe by year."""
         df = self._get_dataframe(key)
         return df[df["year"] == year]
+
+    def _filter_by_location(
+        self, city: str, exact_match: bool = True, key: str | None = None
+    ) -> pd.DataFrame:
+        """Filter the dataframe by location."""
+        return self._filter_by("city", city, exact_match, key)
+
+    def _filter_by_country(
+        self, country: str, exact_match: bool = True, key: str | None = None
+    ) -> pd.DataFrame:
+        """Filter the dataframe by country."""
+        return self._filter_by("country", country, exact_match, key)
 
     def _get_dataframe(self, key: str | None = None) -> pd.DataFrame:
         """Retrieve the appropriate dataframe."""

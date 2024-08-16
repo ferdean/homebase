@@ -1,8 +1,3 @@
-"""Main module.
-
-Collects tests and proofs-of-concept.
-"""
-
 from pathlib import Path
 from data_processor import ExtendedDatabase
 from plotter import (
@@ -10,52 +5,54 @@ from plotter import (
     plot_top_cities_over_time,
     plot_city_distribution,
     plot_country_distribution,
+    plot_visited_countries_map,
 )
 from typing import Final
 
 _EXAMPLE_DATA_PATH: Final[Path] = Path("data") / "ferran.csv"
 
+db = ExtendedDatabase(_EXAMPLE_DATA_PATH)
+df = db._get_dataframe()
 
-def main(file_path: Path = _EXAMPLE_DATA_PATH):
-    """Main routine."""
+# Generate and print basic statistics
+stats = db.get_basic_stats()
+print(f"Basic Statistics:\n{stats}\n")
 
-    db = ExtendedDatabase(file_path)
+# Generate and print city summary for a specific city (using an approximate match)
+city_summary = db.get_location_summary("Lucern", exact_match=False)
+print(f"City Summary for Luzern:\n{city_summary}\n")
 
-    # Generate and print basic statistics
-    stats = db.get_basic_stats()
-    print(f"Basic Statistics:\n{stats}\n")
+# Generate and print country summary for a specific country
+country_summary = db.get_country_summary("Italy")
+print(f"Country Summary for Italy:\n{country_summary}\n")
 
-    # Generate and print city summary for a specific city (note that "Castelló" is not well written)
-    city_summary = db.get_location_summary("Castello", exact_match=False)
-    print(f"City Summary for Castelló:\n{city_summary}\n")
+# Generate and print year summary for a specific year
+year_summary = db.get_year_summary(2022)
+print(f"Year Summary for 2022:\n{year_summary}\n")
 
-    # Generate and print country summary for a specific country
-    country_summary = db.get_country_summary("Spain")
-    print(f"Country Summary for Spain:\n{country_summary}\n")
+# Plot and display the distribution of days lived across countries
+plot_country_distribution(df)
 
-    # Generate and print year summary for a specific year
-    year_summary = db.get_year_summary(2023)
-    print(f"Year Summary for 2023:\n{year_summary}\n")
+# Plot and display the distribution of days lived across cities
+plot_city_distribution(df)
 
-    # Generate and plot country values
-    countries_data = db.get_countries_days_lived()
-    plot_country_values(
-        countries_data["country"],
-        countries_data["total_days_lived"],
-    )
+# Plot and display the top cities over time
+plot_top_cities_over_time(df, top_n=10)
 
-    # Plot top 10 cities with most days lived over time, excluding the first most important one
-    df = db._get_dataframe()  # Using the internal method to get the raw data
-    plot_top_cities_over_time(
-        df, top_n=10, cumulative=True, exclude_top=1, log_scale=False
-    )
+# Plot and display a world map with color-coded values per country
+countries_data = db.get_countries_days_lived()
+countries = countries_data["country"]
+values = countries_data["total_days_lived"]
+plot_country_values(countries, values)
 
-    # Plot the distribution of days lived across different cities
-    plot_city_distribution(df, log_scale=True)
+# Plot and display a map showing the countries visited
+plot_visited_countries_map(countries)
 
-    # Plot the distribution of days lived across different countries
-    plot_country_distribution(df, log_scale=True)
+# Plot and display the top 5 cities with the most days lived over time (cumulative)
+plot_top_cities_over_time(df, top_n=5, cumulative=True)
 
+# Plot and display the distribution of days lived across countries (without log scale)
+plot_country_distribution(df, log_scale=False)
 
-if __name__ == "__main__":
-    main()
+# Plot and display the distribution of days lived across cities (without log scale)
+plot_city_distribution(df, log_scale=False)
