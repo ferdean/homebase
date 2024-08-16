@@ -13,6 +13,8 @@ _EXAMPLE_DATA_PATH: Final[Path] = Path("data") / "ferran.csv"
 
 db = ExtendedDatabase(_EXAMPLE_DATA_PATH)
 df = db._get_dataframe()
+countries_data = db.get_countries_days_lived()
+cities_data = db.get_cities_days_lived()
 
 # Generate and print basic statistics
 stats = db.get_basic_stats()
@@ -40,10 +42,13 @@ plot_city_distribution(df)
 plot_top_cities_over_time(df, top_n=10)
 
 # Plot and display a world map with color-coded values per country
-countries_data = db.get_countries_days_lived()
 countries = countries_data["country"]
 values = countries_data["total_days_lived"]
 plot_country_values(countries, values)
+
+# Print summaries
+print(f"Summary of countries:\n{countries_data}\n")
+print(f"Summary of cities:\n{cities_data}\n")
 
 # Plot and display a map showing the countries visited
 plot_visited_countries_map(countries)
